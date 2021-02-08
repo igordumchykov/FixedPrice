@@ -1,0 +1,62 @@
+service: fixedprice
+frameworkVersion: '2'
+
+custom:
+  account: ${opt:account, 'validation'}
+  stage: ${opt:stage, 'dev', 'validation'}
+  region: ${opt:region, 'us-west-2'}
+  tags:
+    Application: FIXEDPRICE
+    Environment: ${self:custom.stage}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${self:custom.stage}
+  region: ${self:custom.region}
+  stackTags: ${self:custom.tags}
+  endpointType: REGIONAL
+  versionFunctions: false
+  memorySize: 128
+  timeout: 29
+  tracing:
+    lambda: true
+    apiGateway: true
+  logs:
+    restApi:
+      accessLogging: true
+      format: '{
+                  "_time": "$context.requestTime",
+                  "stage" : "$context.stage",
+                  "requestId":"$context.requestId",
+                  "api_id" : "$context.apiId",
+                  "resource_id" : "$context.resourceId",
+                  "http_method" : "$context.httpMethod",
+                  "source_ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account_id" : "$context.identity.accountId",
+                  "resourcePath":"$context.resourcePath",
+                  "responseStatus":"$context.status",
+                  "responseLatency":"$context.responseLatency",
+                  "integrationLatency":"$context.integrationLatency",
+                  "authorizer_integrationLatency":"$context.authorizer.integrationLatency",
+                  "$context.responseLength":"$context.responseLength"
+                }'
+      executionLogging: false
+
+  environment:
+    SERVICE_NAME: ${self:service}
+    STAGE: ${self:custom.stage}
+    LOG_LEVEL: ${file(config/static/${self:custom.stage}.json):log-level}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  main:
+    handler: src/handler.main
+
+resources: ${file(template.yml)}
+
+plugins:
+  - serverless-webpack
+  - serverless-pseudo-parameters
+  - serverless-offline
