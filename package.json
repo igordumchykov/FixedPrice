@@ -1,0 +1,36 @@
+{
+  "name": "fixed-price",
+  "version": "1.0.0",
+  "description": "Fixed Price Lambda",
+  "main": "out/handler.js",
+  "scripts": {
+    "test": "jest --bail --coverage",
+    "lint": "eslint . --ext .ts"
+  },
+  "author": "Igor Dumchykov",
+  "contributors": [
+    {
+      "name": "Igor Dumchykov"
+    },
+    {
+      "name": "Oleg Bilka"
+    }
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.14.2",
+    "@typescript-eslint/parser": "^4.14.2",
+    "aws-sdk": "^2.839.0",
+    "eslint": "^7.19.0",
+    "jest": "^26.6.3",
+    "node": "^15.7.0",
+    "nodemon": "^2.0.7",
+    "serverless": "^2.23.0",
+    "ts-jest": "^26.5.0",
+    "ts-node": "^9.1.1",
+    "serverless-offline": "^6.8.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "serverless-pseudo-parameters": "^2.5.0",
+    "typescript": "^4.1.3"
+  }
+}
