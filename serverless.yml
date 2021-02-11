@@ -8,6 +8,20 @@ custom:
   tags:
     Application: FIXEDPRICE
     Environment: ${self:custom.stage}
+  cors:
+    origin: '*'
+    headers:
+      - Access-Control-Allow-Headers
+      - Access-Control-Allow-Origin
+      - Authorization
+      - Content-Type
+      - X-Amz-Date
+      - X-Amz-Security-Token
+      - X-Amz-User-Agent
+      - X-Customer-Id
+    allowCredentials: true
+  dynamodb:
+    whiteListEmails: white-list-emails-${self:custom.stage}
 
 provider:
   name: aws
@@ -43,16 +57,29 @@ provider:
                   "$context.responseLength":"$context.responseLength"
                 }'
       executionLogging: false
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - DynamoDB:GetItem
+      Resource:
+        - !GetAtt WhiteListEmails.Arn
 
   environment:
     SERVICE_NAME: ${self:service}
     STAGE: ${self:custom.stage}
     LOG_LEVEL: ${file(config/static/${self:custom.stage}.json):log-level}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    WHITE_LIST_EMAILS: ${self:custom.dynamodb.whiteListEmails}
 
 functions:
-  main:
-    handler: src/handler.main
+  checkEmail:
+    handler: src/handler.checkEmail
+    events:
+      - http:
+          path: v1/user/check
+          method: GET
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.authorizer}
 
 resources: ${file(template.yml)}
 
